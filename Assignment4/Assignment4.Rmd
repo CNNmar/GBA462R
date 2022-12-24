@@ -1,0 +1,115 @@
+---
+title: "Assignment4"
+author: "Fan Chen"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### 1. Market Approach
+
+In this case, the best reference transaction is the transaction of
+
+**Cape Sun**(9 in Age, 171.7 in DWT and 11193 in Cindex, \$135.0 in Sales Price(M))
+
+Compared with this ship, Bet Performer has an edge on Cindex and a shortage on Age with Cape sun. The sales price will be around **\$135M** based on the market approach.
+
+### 2. Regression Analysis
+
+a)  The relationship between ship price and each factor listed in Exhibit 4 is expected to be correlated and linear dependent.
+
+    To be specific, we can find that when the **Size**(Dead-Weight Tons) is **higher**, the price becomes **higher**. This is because the cost of production is higher for the larger ship than the smaller ship and the larger ship can carry more goods per time and make more profit for the owner. Therefore, it's sold at a higher price.
+
+    And when the **Age**(Age at Sale) is **higher**, the price becomes **lower**. This is because basic function and the quality of a newer ship is generally better than a older ship. And the younger ship will have a longer remaining service life and require less money to maintain operation. Hence, it's sold at a higher price.
+
+    When the **charter rates** (Baltic Dry Capesize Index) becomes **higher**, the price is **higher** too. According to graph, we can find that the charter rates is positively related to the booming of demand and shortage of ships. And with the supply and demand curve, we can derive that the shortage of ships results in a higher sales price.
+
+b)  Yes, we can also consider the specific **Cargo Size/Cargo Size Ratio** in the total size if the ship is bought for transportation. In this case, ship price will be higher for transportation ship with a larger cargo size. And some factors related to operation can also be necessary, for instance the **Oil Consumption per Distance**. In this case, if this factor is higher, the sale price will be affected by both of a stronger power and a more higher operation cost. In addition, if the ship is ever traded before, we can also consider the factor of the **Last Traded Price**. And this element is in a positive relation to the sales price.
+
+c)  First, we import the data from the excel file
+
+    ``` r
+    setwd("/Users/fanfan/Documents/2022fallA/GBA462R/Assignment4")
+    library("readxl")
+    data2 = read_excel("ShipCaseData.xlsx", sheet = "Data")
+    fit = lm(SalePrice~DWT+Age+Cindex,data=data2)
+    summary(fit)
+    ```
+
+    And we get the following output:
+
+    ``` r
+    Residuals:
+    Min      1Q  Median      3Q     Max 
+    -34.773  -4.180   0.177   5.803  23.601 
+
+    Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+    (Intercept) 44.2215100 16.3836613   2.699  0.00983 ** 
+    DWT          0.2421714  0.0916181   2.643  0.01133 *  
+    Age         -4.5437968  0.2614759 -17.377  < 2e-16 ***
+    Cindex       0.0072071  0.0005981  12.050 1.57e-15 ***
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+    Residual standard error: 9.882 on 44 degrees of freedom
+    Multiple R-squared:  0.9204,    Adjusted R-squared:  0.915 
+    F-statistic: 169.7 on 3 and 44 DF,  p-value: < 2.2e-16
+    ```
+
+    We know that the R square measures the explained variation over the total variation, which is 0.9204. We can derive that **92.04%** of the variation in ship prices can be explained by my model.
+
+d)  Assuming the attributes of Bet Performer are 11-year-old in Age, 172 in DWT(K) and 12479 in Cindex. We can therefore predict the 95% confidence interval of this sales price for the sales price of average ships like Bet Performer and 95% prediction interval for the specific Bet Performer.
+
+    ``` r
+    predict(fit, data.frame(DWT=172,Age=11,Cindex=12479), interval="confidence", level = 0.95)
+    predict(fit, data.frame(DWT=172,Age=11,Cindex=12479), interval="prediction",level = 0.95)
+    ```
+
+    And we can the following output:
+
+    ``` r
+    ### confidence
+           fit      lwr    upr
+    1 125.8301 118.8901 132.77
+
+    ### prediction
+           fit      lwr    upr
+    1 125.8301 104.7401 146.92
+    ```
+
+    which means the 95% confidence interval for the average sales price is **[118.89, 132.77]** and the 95% prediction interval is **[104.74, 146.92]**
+
+e)  With the attributes changed, we repeat the prediction procedure as:
+
+    ``` r
+    predict(fit, data.frame(DWT=172,Age=6,Cindex=12479))
+    predict(fit, data.frame(DWT=152,Age=11,Cindex=12479))
+    predict(fit, data.frame(DWT=172,Age=11,Cindex=8735))
+    ```
+
+    The predictions are:
+
+    Age = 6: Predicted Sales Price: **148.5491**
+
+    DWT = 152: Predicted Sales Price: **120.9866**
+
+    Cindex = 8735: Predicted Sales Price: **98.84686**
+
+### 3. Recommendation
+
+If I were Basil Karatzas, I would suggest the client to bid for **\$133M** for Bet Performer.
+
+Firstly, if the seller is the fan of "market approach", seller can compare the bid with the sales price of Cape Sun and the sales price of Sumihou and find that the bid is faithful. Besides, we can also negotiate with the seller from the statistical model. For the average price of the ships like Bet Performer, this bid(\$133M) is obviously higher than the predicted value in a 5% level. Therefore, there is a profit for the seller.
+
+Meanwhile, it's also reasonable for the client who wants to buy the ship. Since it's a sellers' market, buyers need to increase the bid compared to the average value. And when we analyze the Cindex, we can find that the monthly increase of this index is about 10%, which compensate for the factors of aging and even have a higher profit. We verify it by calculating the
+
+``` r
+predict(fit, data.frame(DWT=172,Age=11+1/12,Cindex=12479*1.1))
+### 134.4451
+```
+
+which means that if the Cindex continues to raise, the buyer can gain profit after the first month.
+
+Therefore, the most important point concerning is the estimation of Cindex in the next few months and years. Since I'm pretty confident in the increase of the Cindex and I think the index will increase periodically and outperform the aging speed in terms of sales price prediction, I will recommend my client to buy this ship at this moment at the price of **\$133M.**
